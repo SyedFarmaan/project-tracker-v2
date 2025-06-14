@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+
+<h2>Messages</h2>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Message</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for msg in messages %}
+    <tr>
+      <td>{{ msg.id }}</td>
+      <td>{{ msg.name }}</td>
+      <td>{{ msg.message }}</td>
+      <td>
+       <form action="{{ url_for('delete_message', msg_id=msg.id) }}" method="POST" style="display:inline;">
+        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+       </form>
+       </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

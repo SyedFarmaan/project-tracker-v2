@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Add New Project</h2>
+  <form method="POST">
+    <input type="text" name="title" placeholder="Project Title" class="form-control mb-2" required>
+    <textarea name="description" placeholder="Description" class="form-control mb-2" required></textarea>
+    <button type="submit" class="btn btn-primary">Add</button>
+  </form>
+
+  <hr>
+
+  <h3>Project List</h3>
+  <ul class="list-group">
+    {% for proj in projects %}
+      <li class="list-group-item">
+        <strong>{{ proj.title }}</strong> <br>
+        {{ proj.description }} <br>
+        <small>{{ proj.created_at.strftime('%d %b %Y %I:%M %p') }}</small>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Contact - Farmaan{% endblock %}
+
+{% block content %}
+    <h2>Contact Form</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.name.label }}<br>
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.message.label }}<br>
+            {{ form.message(class="form-control") }}
+        </div>
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert alert-info mt-3">
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    
+{% endblock %}
