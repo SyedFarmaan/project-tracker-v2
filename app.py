@@ -1,8 +1,9 @@
 from flask import Flask,render_template,redirect,url_for,flash,request
-from forms import ContactForm
+from forms import ContactForm,ProjectForm,DeleteForm
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
+
  
 
 app = Flask(__name__)
@@ -75,18 +76,30 @@ def delete_message(msg_id):
 
 @app.route("/projects", methods=["GET", "POST"])
 def projects():
-    if request.method == "POST":
-        title = request.form["title"]
-        desc = request.form["description"]
-        new_proj = Project(title=title, description=desc)
+    form = ProjectForm()
+    delete_form = DeleteForm()
+
+    if form.validate_on_submit():  # This replaces your manual `if not title` check
+        new_proj = Project(
+            title=form.title.data,
+            description=form.description.data
+        )
         db.session.add(new_proj)
         db.session.commit()
         flash("Project added!", "success")
         return redirect("/projects")
-    
-    all_projects = Project.query.order_by(Project.created_at.desc()).all()
-    return render_template("projects.html", projects=all_projects)
 
+    # If the form is not valid (like fields are empty), Flask-WTF will handle it
+    all_projects = Project.query.order_by(Project.created_at.desc()).all()
+    return render_template("projects.html", form=form, delete_form=delete_form, projects=all_projects)
+
+@app.route("/projects/delete/<int:proj_id>", methods=["POST"])
+def delete_project(proj_id):
+    proj_to_delete = Project.query.get_or_404(proj_id)
+    db.session.delete(proj_to_delete)
+    db.session.commit()
+    flash("Project deleted!", "success")
+    return redirect("/projects")
 
 
 
