@@ -1,24 +1,70 @@
 {% extends 'base.html' %}
+
+{% block title %}Projects - Farmaan{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
-  <h2>Add New Project</h2>
-  <form method="POST">
-    <input type="text" name="title" placeholder="Project Title" class="form-control mb-2" required>
-    <textarea name="description" placeholder="Description" class="form-control mb-2" required></textarea>
-    <button type="submit" class="btn btn-primary">Add</button>
-  </form>
 
-  <hr>
+  <!-- Add Project Form -->
+  <h2 class="text-center text-primary mb-4">Add New Project</h2>
+  <div class="card shadow-sm border-0 mb-5">
+    <div class="card-body">
+      <form method="POST">
+        {{ form.hidden_tag() }}
 
-  <h3>Project List</h3>
-  <ul class="list-group">
+        <div class="mb-3">
+          {{ form.title.label(class="form-label") }}
+          {{ form.title(class="form-control", placeholder="Project Title") }}
+          {% for error in form.title.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="mb-3">
+          {{ form.description.label(class="form-label") }}
+          {{ form.description(class="form-control", rows="3", placeholder="Brief Description") }}
+          {% for error in form.description.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="d-grid">
+          {{ form.submit(class="btn btn-success") }}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Projects Display -->
+  <h3 class="text-center text-secondary mb-4">Your Projects</h3>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for proj in projects %}
-      <li class="list-group-item">
-        <strong>{{ proj.title }}</strong> <br>
-        {{ proj.description }} <br>
-        <small>{{ proj.created_at.strftime('%d %b %Y %I:%M %p') }}</small>
-      </li>
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">{{ proj.title }}</h5>
+          <p class="card-text">{{ proj.description }}</p>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center bg-white border-top-0">
+          <small class="text-muted">{{ proj.created_at.strftime('%d %b %Y %I:%M %p') }}</small>
+          <form method="POST" action="{{ url_for('delete_project', proj_id=proj.id) }}">
+            {{ delete_form.hidden_tag() }}
+            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this project?')">
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+      <div class="alert alert-info text-center">No projects added yet. Add one above!</div>
+    </div>
     {% endfor %}
-  </ul>
+  </div>
+
 </div>
 {% endblock %}
+
+
+
