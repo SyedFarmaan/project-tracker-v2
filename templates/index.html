@@ -19,7 +19,42 @@
 {% block title %}Home - Farmaan{% endblock %}
 
 {% block content %}
-    <h1 class="text-primary">Hello, {{ name }}!</h1>
-    <p class="lead">This is the home page styled with Flask + Bootstrap </p>
+<div class="text-center">
+  <h1 class="text-primary display-4 mb-3">Hello, {{ name }}!</h1>
+  <p class="lead mb-4">Welcome to your personal Flask + Bootstrap dashboard!</p>
+  
+  <div class="row mt-5">
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Projects</h5>
+          <p class="card-text">Add and manage your projects with ease</p>
+          <a href="{{ url_for('projects') }}" class="btn btn-outline-primary">Go to Projects</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Contact</h5>
+          <p class="card-text">Send a message through the contact form</p>
+          <a href="{{ url_for('contact') }}" class="btn btn-outline-primary">Go to Contact</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Messages</h5>
+          <p class="card-text">View submitted contact messages</p>
+          <a href="{{ url_for('messages') }}" class="btn btn-outline-primary">View Messages</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
+
 

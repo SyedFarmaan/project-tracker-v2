@@ -3,7 +3,24 @@
 {% block title %}About - Farmaan{% endblock %}
 
 {% block content %}
-    <h1 class="text-success">About This Project</h1>
-    <p>This site was handcrafted with Flask by Farmaan </p>
+<div class="text-center mb-5">
+  <h1 class="display-6 text-success fw-bold">About This Project</h1>
+  <p class="lead">This site was handcrafted using Flask</p>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow border-0">
+      <div class="card-body text-center">
+        <img src="{{ url_for('static', filename='boyicon.png') }}" alt="Farmaan's Avatar" class="rounded-circle mb-3" width="100" height="100" style="object-fit: cover;">
+        <h5 class="card-title fw-semibold">Farmaan</h5>
+        <p class="card-text">This platform is a simple yet powerful project tracker built with Flask. It helps you organize personal projects and manage messages with a smooth interface.</p>
+        <p class="text-muted small">Version 1.0 • Built during my semester break</p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
+
+
 

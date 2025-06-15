@@ -3,28 +3,44 @@
 {% block title %}Contact - Farmaan{% endblock %}
 
 {% block content %}
-    <h2>Contact Form</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="mb-3">
-            {{ form.name.label }}<br>
-            {{ form.name(class="form-control") }}
-        </div>
-        <div class="mb-3">
-            {{ form.message.label }}<br>
-            {{ form.message(class="form-control") }}
-        </div>
-        {{ form.submit(class="btn btn-primary") }}
-    </form>
+<div class="text-center mb-4 mt-5">
+  <h1 class="display-6 text-primary fw-bold">Contact Us</h1>
+  <p class="lead">Have something to say? We'd love to hear from you</p>
+</div>
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="alert alert-info mt-3">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-    
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h4 class="card-title text-center text-dark mb-4">Send a Message</h4>
+
+        <form method="POST">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control", placeholder="Your Name", aria_label="Name") }}
+            {% for error in form.name.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="mb-3">
+            {{ form.message.label(class="form-label") }}
+            {{ form.message(class="form-control", rows="4", placeholder="Your Message", aria_label="Message") }}
+            {% for error in form.message.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="d-grid">
+            {{ form.submit(class="btn btn-primary") }}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
+
+
