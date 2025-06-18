@@ -1,8 +1,10 @@
-from flask import Flask,render_template,redirect,url_for,flash,request
-from forms import ContactForm,ProjectForm,DeleteForm
+from flask import Flask,render_template,redirect,url_for,flash,request,session
+from werkzeug.security import generate_password_hash, check_password_hash 
+from forms import ContactForm,ProjectForm,DeleteForm,RegisterForm,LoginForm
 from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
+from functools import wraps
 
  
 
@@ -12,6 +14,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'da
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+#login required decorator 
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            flash("You need to be logged in to access this page.", "warning")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+#--------------------------------------------------------------------
+
+# database models
 
 
 class Contact(db.Model):
@@ -28,10 +45,17 @@ class Project(db.Model):
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)  # Store hashed passwords
+    is_admin = db.Column(db.Boolean, default=False)
+
 
 
 app.secret_key = "your_secret_key_here"  # You can generate a random one for production
 
+#flask routesss(public)
 
 @app.route('/')
 def home():
@@ -41,9 +65,10 @@ def home():
 def about():
     return render_template("about.html",name="Farmaan")
 
-#Sqldb creationn 
+#Contact routes(protected)
 
 @app.route("/contact",methods=["GET","POST"])
+@login_required
 def contact():
     form = ContactForm()
     if form.validate_on_submit():
@@ -62,11 +87,13 @@ def contact():
     #html form and the next form is the object of the flaskwtf forms
 
 @app.route("/messages")
+@login_required
 def messages():
     all_msgs = Contact.query.all()
     return render_template("messages.html", messages=all_msgs)
 
 @app.route("/delete/<int:msg_id>", methods=["POST"])
+@login_required
 def delete_message(msg_id):
     msg_to_delete = Contact.query.get_or_404(msg_id)
     db.session.delete(msg_to_delete)
@@ -74,7 +101,11 @@ def delete_message(msg_id):
     flash("Message deleted successfully!", "success")
     return redirect("/messages")
 
+
+#Project Routes(protected)
+
 @app.route("/projects", methods=["GET", "POST"])
+@login_required
 def projects():
     form = ProjectForm()
     delete_form = DeleteForm()
@@ -94,6 +125,7 @@ def projects():
     return render_template("projects.html", form=form, delete_form=delete_form, projects=all_projects)
 
 @app.route("/projects/delete/<int:proj_id>", methods=["POST"])
+@login_required
 def delete_project(proj_id):
     proj_to_delete = Project.query.get_or_404(proj_id)
     db.session.delete(proj_to_delete)
@@ -101,7 +133,55 @@ def delete_project(proj_id):
     flash("Project deleted!", "success")
     return redirect("/projects")
 
+#routes for login and registration
+#last changed register route
 
+#Auth Routes(public)
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        if existing_user:
+            flash("Username already taken. Please choose a different one.", "danger")
+            return redirect(url_for("register"))
+
+        hashed_pw = generate_password_hash(form.password.data)
+        new_user = User(username=form.username.data, password=hashed_pw)
+        db.session.add(new_user)
+        db.session.commit()
+        flash("Account created successfully. You can now log in!", "success")
+        return redirect(url_for("login"))
+
+    return render_template("register.html", form=form)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and check_password_hash(user.password, form.password.data):
+            session["user_id"] = user.id
+            session["username"] = user.username
+            session["is_admin"] = user.is_admin
+            flash("Logged in successfully!", "success")
+            return redirect(url_for("home"))
+        else:
+            flash("Invalid username or password. Please try again.", "danger")
+
+    return render_template("login.html", form=form)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("You have been logged out.", "info")
+    return redirect(url_for("login"))
+
+
+#MAIN
 
 if __name__ =='__main__':
     app.run(debug=True)
