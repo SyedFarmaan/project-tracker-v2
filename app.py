@@ -180,6 +180,56 @@ def logout():
     flash("You have been logged out.", "info")
     return redirect(url_for("login"))
 
+#admin route
+
+@app.route("/admin")
+@login_required
+def admin_dashboard():
+    if not session.get("is_admin"):
+        flash("You are not authorized to view this page.", "danger")
+        return redirect(url_for("home"))
+    
+    users = User.query.all()
+    return render_template("admin.html", users=users)
+
+@app.route("/admin/promote/<int:user_id>", methods=["POST"])
+@login_required
+def promote_user(user_id):
+    if not session.get("is_admin"):
+        flash("Admin access required.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    user = User.query.get_or_404(user_id)
+    if user.is_admin:
+        flash("User is already an admin.", "info")
+    else:
+        user.is_admin = True
+        db.session.commit()
+        flash(f"{user.username} has been promoted to admin.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/admin/delete/<int:user_id>", methods=["POST"])
+@login_required
+def delete_user(user_id):
+    if not session.get("is_admin"):
+        flash("Admin access required.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    user = User.query.get_or_404(user_id)
+
+    if user.id == session["user_id"]:
+        flash("You cannot delete your own account!", "warning")
+        return redirect(url_for("admin_dashboard"))
+
+    db.session.delete(user)
+    db.session.commit()
+    flash(f"User {user.username} has been deleted.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+
+
 
 #MAIN
 

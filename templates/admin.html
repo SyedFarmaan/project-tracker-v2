@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-success">Admin Dashboard</h2>
+
+<table class="table table-bordered table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Is Admin?</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.id }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ "Yes" if user.is_admin else "No" }}</td>
+      <td>
+      {% if user.id != session['user_id'] %}
+        {% if not user.is_admin %}
+          <form action="{{ url_for('promote_user', user_id=user.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-success">Promote</button>
+          </form>
+        {% endif %}
+        <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      {% else %}
+        <span class="text-muted">You</span>
+      {% endif %}
+    </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{{ url_for('home') }}" class="btn btn-outline-primary mt-3">Back to Home</a>
+{% endblock %}
