@@ -5,6 +5,10 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 from datetime import datetime
 from functools import wraps
+from supabase_client import supabase
+from dotenv import load_dotenv
+
+
 
  
 
@@ -14,6 +18,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'da
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+#.env setup
+
+load_dotenv()
+app.secret_key = os.getenv("SECRET_KEY")
 
 #login required decorator 
 
@@ -246,6 +255,19 @@ def delete_user(user_id):
     db.session.commit()
     flash(f"User {user.username} has been deleted.", "success")
     return redirect(url_for("admin_dashboard"))
+
+#supabase connection test
+
+@app.route("/supabase-test")
+def supabase_test():
+    data = supabase.table("projects").select("*").execute()
+    return data.data  # Returns JSON
+
+#error handler
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html"), 404
+
 
 
 
