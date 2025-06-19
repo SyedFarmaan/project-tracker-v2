@@ -27,6 +27,18 @@ def login_required(f):
     return decorated_function
 
 #--------------------------------------------------------------------
+#Admin required decorator 
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get("is_admin"):
+            flash("You do not have permission to access this page.", "danger")
+            return redirect(url_for("home"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+
 
 # database models
 
@@ -110,7 +122,15 @@ def projects():
     form = ProjectForm()
     delete_form = DeleteForm()
 
-    if form.validate_on_submit():  # This replaces your manual `if not title` check
+    search_query = request.args.get("search", "").strip()
+
+    if search_query:
+        all_projects = Project.query.filter(Project.title.ilike(f"%{search_query}%")) \
+            .order_by(Project.created_at.desc()).all()
+    else:
+        all_projects = Project.query.order_by(Project.created_at.desc()).all()
+
+    if form.validate_on_submit():
         new_proj = Project(
             title=form.title.data,
             description=form.description.data
@@ -118,11 +138,10 @@ def projects():
         db.session.add(new_proj)
         db.session.commit()
         flash("Project added!", "success")
-        return redirect("/projects")
+        return redirect(url_for("projects"))
 
-    # If the form is not valid (like fields are empty), Flask-WTF will handle it
-    all_projects = Project.query.order_by(Project.created_at.desc()).all()
-    return render_template("projects.html", form=form, delete_form=delete_form, projects=all_projects)
+    return render_template("projects.html", form=form, delete_form=delete_form, projects=all_projects, search_query=search_query)
+
 
 @app.route("/projects/delete/<int:proj_id>", methods=["POST"])
 @login_required
@@ -184,6 +203,7 @@ def logout():
 
 @app.route("/admin")
 @login_required
+@admin_required
 def admin_dashboard():
     if not session.get("is_admin"):
         flash("You are not authorized to view this page.", "danger")
