@@ -41,6 +41,15 @@
             <li class="nav-item">
               <a class="nav-link {% if request.endpoint == 'messages' %}active{% endif %}" href="{{ url_for('messages') }}">Messages</a>
             </li>
+
+            {% if session.get("is_admin") %}
+              <li class="nav-item">
+                <a class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">
+                  Admin Dashboard
+                </a>
+              </li>
+            {% endif %}
+
             <li class="nav-item">
               <a class="nav-link text-warning" href="{{ url_for('logout') }}">Logout ({{ session.get('username') }})</a>
             </li>
