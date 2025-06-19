@@ -5,6 +5,14 @@
 {% block content %}
 <div class="container mt-4">
 
+  <!-- Search Bar -->
+  <form method="GET" action="{{ url_for('projects') }}" class="mb-4">
+    <div class="input-group">
+      <input type="text" name="search" class="form-control" placeholder="Search by project title..." value="{{ search_query }}">
+      <button type="submit" class="btn btn-outline-primary">Search</button>
+    </div>
+  </form>
+
   <!-- Add Project Form -->
   <h2 class="text-center text-primary mb-4">Add New Project</h2>
   <div class="card shadow-sm border-0 mb-5">
